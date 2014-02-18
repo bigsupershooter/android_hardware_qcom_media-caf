@@ -2873,11 +2873,12 @@ OMX_ERRORTYPE  omx_video::allocate_input_buffer(
       flags = 0;
       DEBUG_PRINT_HIGH("uncache buffers requested");
     }
+#ifdef USE_ION
     else
     {
       flags = ION_FLAG_CACHED;
     }
-#ifdef USE_ION
+
     m_pInput_ion[i].ion_device_fd = alloc_map_ion_memory(m_sInPortDef.nBufferSize,
                                     &m_pInput_ion[i].ion_alloc_data,
                                     &m_pInput_ion[i].fd_ion_data, flags);
@@ -3087,11 +3088,18 @@ OMX_ERRORTYPE  omx_video::allocate_output_buffer(
 
       m_out_bm_count = BITMASK_SET_U32(m_out_bm_count,i);
 
+#ifdef USE_ION
       DEBUG_PRINT_HIGH("alloc_output: idx = %d, fd = %d, addr = %p, offset = %d, "
          "ion_device_fd = %d, ion_handle = %p, length = %d", i,
          m_pOutput_pmem[i].fd, m_pOutput_pmem[i].buffer, m_pOutput_pmem[i].offset,
          m_pOutput_ion[i].ion_device_fd, m_pOutput_ion[i].ion_alloc_data.handle,
          m_pOutput_pmem[i].size);
+#else
+      DEBUG_PRINT_HIGH("alloc_output: idx = %d, fd = %d, addr = %p, offset = %d, "
+         "length = %d", i,
+         m_pOutput_pmem[i].fd, m_pOutput_pmem[i].buffer, m_pOutput_pmem[i].offset,
+         m_pOutput_pmem[i].size);
+#endif
 
       if(dev_use_buf(&m_pOutput_pmem[i],PORT_INDEX_OUT,i) != true)
       {
